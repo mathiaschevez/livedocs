@@ -1,11 +1,18 @@
 import CollaborativeRoom from '@/components/CollaborativeRoom'
+import { getDocument } from '@/lib/actions/room.actions';
+import { currentUser } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation';
 import React from 'react'
-//current room lZREG2cxjyOcBAFq1jML9
-const Document = () => {
-  return <main className='flex w-full flex-col items-center'>
-    <CollaborativeRoom
 
-    />
+const Document = async ({ params: { id } }: SearchParamProps) => {
+  const clerkUser = await currentUser();
+  if (!clerkUser) redirect('/sign-in');
+
+  const room = await getDocument(id, clerkUser.emailAddresses[0].emailAddress);
+  if (!room) redirect('/');
+
+  return <main className='flex w-full flex-col items-center'>
+    <CollaborativeRoom roomId={id} roomMetadata={room.metadata} />
   </main>
 }
 
