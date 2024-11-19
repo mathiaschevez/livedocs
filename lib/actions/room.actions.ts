@@ -4,6 +4,7 @@ import { nanoid }from 'nanoid'
 import { liveblocks } from '../liveblocks';
 import { revalidatePath } from 'next/cache';
 import { getAccessType, parseStringify } from '../utils';
+import { redirect } from 'next/navigation';
 
 export const createDocument = async ({ userId, email }: CreateDocumentParams) => {
   const roomId = nanoid();
@@ -103,6 +104,16 @@ export async function removeCollaborator(roomId: string, email: string) {
     
     revalidatePath(`/documents/${roomId}`);
     return updatedRoom;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function deleteDocument(roomId: string) {
+  try {
+    await liveblocks.deleteRoom(roomId);
+    revalidatePath('/');
+    redirect('/');
   } catch (error) {
     console.error(error);
   }

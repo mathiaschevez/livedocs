@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import React from 'react'
 import { dateConverter } from '@/lib/utils';
+import DeleteModal from '@/components/DeleteModal';
 
 const Home = async () => {
   const clerkUser = await currentUser();
@@ -47,7 +48,7 @@ const Home = async () => {
                   <p className='text-sm font-light text-blue-100'>Created about {dateConverter(document.createdAt.toString())}</p>
                 </div>
               </Link>
-              {/* add delete */}
+              <DeleteModal roomId={document.id} />
             </li>
           </>)}
         </ul>
