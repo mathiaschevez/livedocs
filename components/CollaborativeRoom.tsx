@@ -31,7 +31,7 @@ const CollaborativeRoom = ({ roomId, roomMetadata, currentUserType }: Collaborat
   }, [roomId, title]);
 
   useEffect(function focusInputIfEditing() {
-    if (editing && inputRef.current) inputRef.current.focus()
+    if (editing && inputRef.current) inputRef.current.focus();
   }, [editing]);
 
   async function updateTitleHandler(e: React.KeyboardEvent<HTMLInputElement>) {
