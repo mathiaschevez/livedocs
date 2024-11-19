@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export const parseStringify = (value: number | string | null | undefined | object) => JSON.parse(JSON.stringify(value));
 
-export const getAccessType = (userType: UserType) => {
+export const getAccessType = (userType: UserType): AccessType => {
   switch (userType) {
     case 'creator':
       return ['room:write'];

@@ -40,7 +40,7 @@ declare type ShareDocumentParams = {
 declare type UserTypeSelectorParams = {
   userType: string;
   setUserType: React.Dispatch<React.SetStateAction<UserType>>;
-  onClickHandler?: (value: string) => void;
+  onClickHandler?: (value: UserType) => void;
 };
 
 declare type ShareDocumentDialogProps = {

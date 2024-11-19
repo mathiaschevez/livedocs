@@ -3,7 +3,7 @@
 import { nanoid }from 'nanoid'
 import { liveblocks } from '../liveblocks';
 import { revalidatePath } from 'next/cache';
-import { parseStringify } from '../utils';
+import { getAccessType, parseStringify } from '../utils';
 
 export const createDocument = async ({ userId, email }: CreateDocumentParams) => {
   const roomId = nanoid();
@@ -22,7 +22,7 @@ export const createDocument = async ({ userId, email }: CreateDocumentParams) =>
     const room = await liveblocks.createRoom(roomId, {
       metadata,
       usersAccesses,
-      defaultAccesses: ['room:write']
+      defaultAccesses: []
     });
 
     revalidatePath('/');
@@ -36,10 +36,10 @@ export const createDocument = async ({ userId, email }: CreateDocumentParams) =>
 export async function getDocument(roomId: string, userId: string) {
   try {
     const room = await liveblocks.getRoom(roomId);
-    if (!userId) console.log('no user');
-    // const hasAccess = Object.keys(room.usersAccesses).includes(userId);
-    // if (!hasAccess) throw new Error('No Access')
-    // else 
+
+    const hasAccess = Object.keys(room.usersAccesses).includes(userId);
+    if (!hasAccess) throw new Error('No Access');
+
     return parseStringify(room);
   } catch(error) {
     console.error(`Error while getting a room: ${error}`)
@@ -64,9 +64,46 @@ export async function getDocuments(userEmail: string) {
     const rooms = await liveblocks.getRooms({ userId: userEmail });
     // const hasAccess = Object.keys(room.usersAccesses).includes(userId);
     // if (!hasAccess) throw new Error('No Access')
-    // else 
     return rooms;
   } catch(error) {
     console.error(`Error while getting a rooms for user: ${error}`)
+  }
+}
+
+export async function updateDocumentAccess({ roomId, email, userType, updatedBy }: ShareDocumentParams) {
+  try {
+    const usersAccesses: RoomAccesses = {
+      [email]: getAccessType(userType),
+    }
+
+    const room = await liveblocks.updateRoom(roomId, { usersAccesses });
+    if (room) {
+      console.log(updatedBy.userType);
+    }
+
+    revalidatePath(`/documents/${roomId}`);
+    return room;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function removeCollaborator(roomId: string, email: string) {
+  try {
+    const room = await liveblocks.getRoom(roomId);
+    if (room.metadata.email === email) {
+      throw new Error('You cannot remove yourself as the owner');
+    }
+
+    const updatedRoom = await liveblocks.updateRoom(roomId, {
+      usersAccesses: {
+        [email]: null
+      }
+    })
+    
+    revalidatePath(`/documents/${roomId}`);
+    return updatedRoom;
+  } catch (error) {
+    console.error(error);
   }
 }
